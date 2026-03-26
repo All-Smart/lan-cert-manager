@@ -1,6 +1,6 @@
 {
   "name": "lan-cert-manager",
-  "version": "1.0.32",
+  "version": "1.0.34",
   "description": "All-in-One LAN Certificate Manager: DNS Server + Root CA + Certificate Management with Web GUI",
   "main": "src/server.js",
   "scripts": {

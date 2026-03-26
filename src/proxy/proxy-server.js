@@ -81,6 +81,8 @@ function start() {
     const proxy = httpProxy.createProxyServer({
       secure: false, // allow self-signed certs on targets
       changeOrigin: true,
+      autoRewrite: true,      // rewrite Location headers on redirects
+      protocolRewrite: 'https',
     });
 
     proxy.on('error', (err, req, res) => {
@@ -89,6 +91,42 @@ function start() {
         res.writeHead(502);
         res.end(`Bad Gateway: ${err.message}`);
       }
+    });
+
+    // Add forwarding headers + fix Origin/Referer for CSRF-protected backends (UniFi, etc.)
+    proxy.on('proxyReq', (proxyReq, req) => {
+      const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
+      proxyReq.setHeader('X-Forwarded-For', clientIp);
+      proxyReq.setHeader('X-Forwarded-Proto', 'https');
+      proxyReq.setHeader('X-Forwarded-Host', req.headers.host || '');
+      proxyReq.setHeader('X-Real-IP', clientIp.split(',')[0].trim());
+
+      // Rewrite Origin and Referer to match the target so CSRF checks pass
+      const hostname = (req.headers.host || '').split(':')[0];
+      const routes = db.proxy.getEnabled();
+      const route = routes.find(r => r.hostname === hostname);
+      if (route) {
+        try {
+          const targetUrl = new URL(route.target);
+          const targetOrigin = `${targetUrl.protocol}//${targetUrl.host}`;
+          if (req.headers['origin']) {
+            proxyReq.setHeader('Origin', targetOrigin);
+          }
+          if (req.headers['referer']) {
+            const refUrl = new URL(req.headers['referer']);
+            refUrl.protocol = targetUrl.protocol;
+            refUrl.host = targetUrl.host;
+            proxyReq.setHeader('Referer', refUrl.toString());
+          }
+        } catch {}
+      }
+    });
+
+    // Remove security headers that block framing/embedding through proxy
+    proxy.on('proxyRes', (proxyRes) => {
+      delete proxyRes.headers['x-frame-options'];
+      // Rewrite HSTS to avoid caching issues during testing
+      delete proxyRes.headers['strict-transport-security'];
     });
 
     // Dummy default cert (needed for https.createServer)
