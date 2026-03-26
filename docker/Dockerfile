@@ -18,10 +18,13 @@ COPY src/ ./src/
 # Create data dirs
 RUN mkdir -p data/ca data/certs
 
-EXPOSE 3000 5353/udp
+EXPOSE 3000 3443 5353/udp 443
 
 ENV NODE_ENV=production
 ENV DATA_DIR=/app/data
+ENV DNS_PORT=5353
+ENV HTTPS_PORT=3443
+ENV PROXY_PORT=443
 
 VOLUME ["/app/data"]
 

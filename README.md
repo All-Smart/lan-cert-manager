@@ -88,11 +88,22 @@ npm start
 docker build -t lan-cert-manager -f docker/Dockerfile .
 docker run -d \
   -p 3000:3000 \
-  -p 5353:5353/udp \
+  -p 3443:3443 \
+  -p 443:443 \
+  -p 53:5353/udp \
   -v lan-cert-data:/app/data \
   --name lan-cert-manager \
   lan-cert-manager
 ```
+
+> **Hinweis DNS:** Der Container läuft intern auf Port 5353, wird aber via `-p 53:5353/udp` auf dem Host als Port 53 erreichbar gemacht. So sind keine Root-Rechte im Container nötig.
+>
+> **Hinweis systemd-resolved:** Auf Ubuntu/Debian-Hosts blockiert `systemd-resolved` standardmäßig Port 53. Vor dem Start:
+> ```bash
+> sudo mkdir -p /etc/systemd/resolved.conf.d
+> echo -e "[Resolve]\nDNSStubListener=no" | sudo tee /etc/systemd/resolved.conf.d/no-stub.conf
+> sudo systemctl restart systemd-resolved
+> ```
 
 ## ⚙️ Konfiguration
 
