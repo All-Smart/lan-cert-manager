@@ -1,0 +1,39 @@
+{
+  "name": "lan-cert-manager",
+  "version": "1.0.26",
+  "description": "All-in-One LAN Certificate Manager: DNS Server + Root CA + Certificate Management with Web GUI",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "ui:dev": "cd ui && npm run dev",
+    "ui:build": "cd ui && npm run build",
+    "setup": "npm install && cd ui && npm install && npm run build",
+    "postinstall": "mkdir -p data/ca data/certs"
+  },
+  "keywords": [
+    "certificate",
+    "ca",
+    "dns",
+    "lan",
+    "https",
+    "ssl",
+    "tls"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@simplewebauthn/server": "^13.3.0",
+    "better-sqlite3": "^11.7.0",
+    "cors": "^2.8.5",
+    "dns2": "^2.1.0",
+    "express": "^4.21.0",
+    "express-session": "^1.19.0",
+    "http-proxy": "^1.18.1",
+    "node-forge": "^1.3.1",
+    "qrcode": "^1.5.4",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
