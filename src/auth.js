@@ -53,11 +53,20 @@ function hasPassword() {
  * Allows: login endpoints, version endpoint, static assets
  */
 function requireAuth(req, res, next) {
-  // Always allow: login API, version, static assets
-  const open = ['/api/auth/login', '/api/auth/status', '/api/version',
-    '/api/passkeys/auth/options', '/api/passkeys/auth/verify'];
-  if (open.includes(req.path)) return next();
-  if (!req.path.startsWith('/api/')) return next(); // static frontend
+  const fullPath = req.originalUrl.split('?')[0];
+
+  // Allow static frontend (non-API routes)
+  if (!fullPath.startsWith('/api/')) return next();
+
+  // Always allow these API endpoints without authentication
+  const open = [
+    '/api/auth/login',
+    '/api/auth/status',
+    '/api/version',
+    '/api/passkeys/auth/options',
+    '/api/passkeys/auth/verify',
+  ];
+  if (open.includes(fullPath)) return next();
 
   // Check session
   if (req.session && req.session.authenticated) return next();

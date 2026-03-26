@@ -37,7 +37,8 @@ app.use(session({
   saveUninitialized: false,
   cookie: { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 }, // 24h
 }));
-app.use('/api', requireAuth);
+// Auth middleware — applied globally, checks originalUrl
+app.use(requireAuth);
 app.use('/api/auth', require('./api/auth-routes'));
 
 // Version
