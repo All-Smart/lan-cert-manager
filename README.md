@@ -122,6 +122,80 @@ docker run -d \
 
 ## 📡 REST API
 
+### 🔐 Authentifizierung
+
+Alle API-Endpunkte (außer den unten aufgeführten) erfordern eine aktive Session. Die Session wird via Cookie (`connect.sid`) verwaltet.
+
+**Öffentliche Endpunkte (kein Login nötig):**
+- `GET /api/auth/status`
+- `POST /api/auth/login`
+- `GET /api/version`
+- `GET /api/passkeys/available`
+- `POST /api/passkeys/auth/options`
+- `POST /api/passkeys/auth/verify`
+
+#### Login mit Passwort
+
+```bash
+# Login — Cookie in Datei speichern
+curl -c cookies.txt -X POST http://lan-cert-manager.home:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"password": "dein-passwort"}'
+
+# Antwort bei Erfolg:
+# {"success": true}
+
+# Folgeaufrufe mit Cookie
+curl -b cookies.txt http://lan-cert-manager.home:3000/api/dns
+```
+
+#### Login-Status prüfen
+
+```bash
+curl http://lan-cert-manager.home:3000/api/auth/status
+# {"authenticated": false, "hasPassword": true}
+```
+
+#### Logout
+
+```bash
+curl -b cookies.txt -X POST http://lan-cert-manager.home:3000/api/auth/logout
+```
+
+#### Passwort setzen / ändern (erfordert aktive Session)
+
+```bash
+curl -b cookies.txt -X POST http://lan-cert-manager.home:3000/api/auth/password \
+  -H "Content-Type: application/json" \
+  -d '{"password": "neues-passwort"}'
+```
+
+#### Beispiel: Vollständiger API-Workflow
+
+```bash
+# 1. Login
+curl -c /tmp/lcm.jar -X POST https://lan-cert-manager.home:3443/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"password":"geheim"}' -k
+
+# 2. DNS-Records abrufen
+curl -b /tmp/lcm.jar https://lan-cert-manager.home:3443/api/dns -k
+
+# 3. DNS-Record erstellen
+curl -b /tmp/lcm.jar -X POST https://lan-cert-manager.home:3443/api/dns \
+  -H "Content-Type: application/json" \
+  -d '{"name":"meinserver.home","type":"A","value":"192.168.0.50","ttl":300}' -k
+
+# 4. Zertifikat erstellen
+curl -b /tmp/lcm.jar -X POST https://lan-cert-manager.home:3443/api/certs \
+  -H "Content-Type: application/json" \
+  -d '{"commonName":"meinserver.home","sanDns":["meinserver.home"],"sanIps":["192.168.0.50"]}' -k
+```
+
+> **Hinweis:** Für HTTPS-Endpunkte `-k` verwenden bis das CA-Zertifikat im System installiert ist. Danach kann `-k` weggelassen werden.
+
+---
+
 ### CA
 - `GET /api/ca/status` — CA-Status
 - `POST /api/ca/init` — Root CA erstellen
