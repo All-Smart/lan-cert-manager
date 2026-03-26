@@ -19,7 +19,7 @@ const config = {
   upstreamDns: (process.env.UPSTREAM_DNS || '8.8.8.8,1.1.1.1').split(',').map(s => s.trim()),
 
   /** Default DNS zone */
-  defaultZone: process.env.DEFAULT_ZONE || 'lan',
+  defaultZone: process.env.DEFAULT_ZONE || 'local',
 
   /** Data directory paths */
   dataDir: DATA_DIR,
