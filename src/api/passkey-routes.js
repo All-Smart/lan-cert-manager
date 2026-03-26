@@ -34,6 +34,12 @@ function getRpOrigin(req) {
   return `${isHttps ? 'https' : 'http'}://${host}`;
 }
 
+/** GET /api/passkeys/available — public: sind Passkeys konfiguriert? (für Login-Screen) */
+router.get('/available', (req, res) => {
+  const passkeys = JSON.parse(db.settings.get('passkeys', '[]'));
+  res.json({ available: passkeys.length > 0 });
+});
+
 /** GET /api/passkeys — list registered passkeys */
 router.get('/', (req, res) => {
   const passkeys = db.settings.get('passkeys', '[]');

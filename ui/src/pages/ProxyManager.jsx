@@ -3,7 +3,7 @@ import {
   Box, Typography, Button, Card, CardContent, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper, IconButton, Dialog, DialogTitle,
   DialogContent, DialogActions, TextField, Select, MenuItem, FormControl,
-  InputLabel, Switch, Chip, Alert, Tooltip
+  InputLabel, Switch, Chip, Alert, Tooltip, Autocomplete
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -17,6 +17,7 @@ export default function ProxyManager() {
   const [routes, setRoutes] = useState([]);
   const [status, setStatus] = useState({ running: false, port: 443 });
   const [certs, setCerts] = useState([]);
+  const [dnsRecords, setDnsRecords] = useState([]);
   const [dialog, setDialog] = useState(false);
   const [form, setForm] = useState(EMPTY);
   const [editId, setEditId] = useState(null);
@@ -30,6 +31,7 @@ export default function ProxyManager() {
   useEffect(() => {
     load();
     api.certsGetAll().then(setCerts).catch(() => {});
+    api.dnsGetAll().then(setDnsRecords).catch(() => {});
   }, []);
 
   const handleSave = async () => {
@@ -136,9 +138,16 @@ export default function ProxyManager() {
       <Dialog open={dialog} onClose={() => setDialog(false)} maxWidth="sm" fullWidth>
         <DialogTitle>{editId ? 'Route bearbeiten' : 'Neue Route'}</DialogTitle>
         <DialogContent sx={{ pt: 2 }}>
-          <TextField fullWidth label="Hostname" placeholder="iobroker.home"
-            value={form.hostname} onChange={e => setForm(f => ({ ...f, hostname: e.target.value }))}
-            sx={{ mb: 2 }} helperText="Muss als DNS-Record existieren" />
+          <Autocomplete
+            freeSolo
+            options={dnsRecords.map(r => r.name).filter((v, i, a) => a.indexOf(v) === i).sort()}
+            value={form.hostname}
+            onInputChange={(_, value) => setForm(f => ({ ...f, hostname: value }))}
+            renderInput={(params) => (
+              <TextField {...params} fullWidth label="Hostname" placeholder="iobroker.home"
+                sx={{ mb: 2 }} helperText="DNS-Record auswählen oder neuen Hostnamen eingeben" />
+            )}
+          />
           <TextField fullWidth label="Ziel-URL" placeholder="https://192.168.0.3:8081"
             value={form.target} onChange={e => setForm(f => ({ ...f, target: e.target.value }))}
             sx={{ mb: 2 }} helperText="Interne URL inkl. Protokoll und Port" />

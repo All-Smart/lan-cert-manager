@@ -63,6 +63,7 @@ function requireAuth(req, res, next) {
     '/api/auth/login',
     '/api/auth/status',
     '/api/version',
+    '/api/passkeys/available',
     '/api/passkeys/auth/options',
     '/api/passkeys/auth/verify',
   ];

@@ -16,7 +16,7 @@ export default function Login({ onLogin, firstRun }) {
 
   useEffect(() => {
     if (!firstRun) {
-      api.passkeysGetAll().then(list => setHasPasskeys(list.length > 0)).catch(() => {});
+      api.passkeysAvailable().then(r => setHasPasskeys(r.available)).catch(() => {});
     }
   }, [firstRun]);
 

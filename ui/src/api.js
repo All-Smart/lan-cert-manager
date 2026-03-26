@@ -26,6 +26,7 @@ export const api = {
   authLogout: () => request('/auth/logout', { method: 'POST' }),
   authSetPassword: (password) => request('/auth/password', { method: 'POST', body: { password } }),
   // Passkeys
+  passkeysAvailable: () => request('/passkeys/available'),
   passkeysGetAll: () => request('/passkeys'),
   passkeyDelete: (id) => request(`/passkeys/${id}`, { method: 'DELETE' }),
   passkeyRegisterOptions: () => request('/passkeys/register/options', { method: 'POST' }),
