@@ -16,7 +16,7 @@ const config = {
   dnsPort: parseInt(process.env.DNS_PORT, 10) || 5353,
 
   /** Upstream DNS servers for forwarding */
-  upstreamDns: (process.env.UPSTREAM_DNS || '8.8.8.8,1.1.1.1').split(',').map(s => s.trim()),
+  upstreamDns: (process.env.UPSTREAM_DNS || '9.9.9.9,149.112.112.112,8.8.8.8,1.1.1.1').split(',').map(s => s.trim()),
 
   /** Default DNS zone */
   defaultZone: process.env.DEFAULT_ZONE || 'local',
